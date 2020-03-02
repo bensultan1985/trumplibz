@@ -15,7 +15,7 @@ const server = http.createServer((req, res) => {
             res.end(content)
             
         })
-        fs.readFile(path.join(__dirname, 'public', 'script.css'), (err, content) => {
+        fs.readFile(path.join(__dirname, 'public', 'script.js'), (err, content) => {
             if (err) throw err;
             res.writeHead(200, { 'Content-Type': 'text/javascript'})
             res.end(content)
