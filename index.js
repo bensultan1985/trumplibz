@@ -20,6 +20,11 @@ const server = http.createServer((req, res) => {
             res.writeHead(200, { 'Content-Type': 'text/javascript'})
             res.end(content)
         })
+        fs.readFile(path.join(__dirname, 'public', 'favicon.ico'), (err, content) => {
+            if (err) throw err;
+            res.writeHead(200)
+            res.end(content)
+        })
     }
 })
 
