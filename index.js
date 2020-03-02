@@ -6,8 +6,19 @@ const server = http.createServer((req, res) => {
     if (req.url === '/') {
         fs.readFile(path.join(__dirname, 'public', 'index.html'), (err, content) => {
             if (err) throw err;
-        res.writeHead(200, { 'Content-Type': 'text/html'})
-        res.end(content)
+            res.writeHead(200, { 'Content-Type': 'text/html'})
+            res.end(content)
+        })
+        fs.readFile(path.join(__dirname, 'public', 'style.css'), (err, content) => {
+            if (err) throw err;
+            res.writeHead(200, { 'Content-Type': 'text/css'})
+            res.end(content)
+            
+        })
+        fs.readFile(path.join(__dirname, 'public', 'script.css'), (err, content) => {
+            if (err) throw err;
+            res.writeHead(200, { 'Content-Type': 'text/javascript'})
+            res.end(content)
         })
     }
 })
