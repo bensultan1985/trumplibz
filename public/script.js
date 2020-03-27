@@ -2,14 +2,25 @@ let object = {};
 let count = 0;
 let submit = document.getElementById("submit");
 let headline = '';
+let totalLibs = 0;
 //API NYTimes Call
-(async () => {
-let url = 'https://api.nytimes.com/svc/search/v2/articlesearch.json?q=Trump&api-key=9hF6uiZFm8pPLDGLCGZoP3MhhVsHiMsL';
-let response = await fetch(url);
-object = await response.json(); // read response body and parse as JSON
-headline = object.response.docs[count].headline.main;
-discoverReplacements(object.response.docs[count].lead_paragraph);
-})()
+// let url = 'http://localhost:5000/nytimes';
+// let response = fetch(url).then(response => res.json()).then(data => console.log(data));
+// console.log(response);
+// headline = object.response.docs[count].headline.main;
+// discoverReplacements(object.response.docs[count].lead_paragraph);
+const newLibs = () => { (async () => {
+  object = {};
+  let response = await fetch('http://localhost:5000/nytimes');
+  object = await response.json(); // read response body and parse as JSON
+  console.log(object);
+  headline = object.response.docs[count].headline.main;
+  discoverReplacements(object.response.docs[count].lead_paragraph);
+  }
+  
+  
+  )()
+}
 
 //global variables
 let listOfReplaced = [];
@@ -21,7 +32,8 @@ let replaceIng = ['ing', '-ing verb', 2]
 let president = ['President', 'adjective', 'addbefore']
 let addAdjectives = [['meeting', 'adjective', 'addbefore'], ['votes', 'plural noun', 'bas'], ['complete', 'adverb', 'addbefore'], ['advised', 'adverb', 'addbefore'], ['voted', 'adverb', 'addbefore'], ['said', 'adverb', 'addbefore'], ['adverb', 'tweeted', 'addbefore'], ['trial', 'adjective', 'addbefore'], ['hearings', 'adjective', 'addbefore'],['President', 'adjective', 'addbefore'], ['dangerous', 'adjective', 'bas']]
 //regular conditions template ['', '', 'bas']
-let commonFills = [['book', 'noun', 'bas'], ['collusion', 'noun', 'bas'], ['wished', 'past tense verb', 'bas'], ['people', 'living things', 'bas'], ['fake', 'adjective', 'bas'], ['witch', 'occupation (singular)', 'bas'], ['adviser', 'occupation (singular)', 'bas'], ['foreign aid', 'plural noun', 'bas'], ['white house', 'place', 'bas'], ['Washington D.C.', 'place', 'bas'], ['senate', 'place', 'bas'], ['Nancy Pelosi', 'celebrity', 'bas'], ['Mitch McConnell', 'celebrity', 'bas'], ['China', 'place', 'bas'], ['election', 'award ceremony name', 'bas'],['President', 'adjective', 'addbefore'],['\'s', 'adjective', 'addafter'], ['Russia', 'place', 'bas'], ['Putin', 'celebrity', 'bas'], ['collusion', '-ing verb', 'bas'], ['testify', 'verb', 'bas'], ['Republicans', 'occupation (plural)', 'bas'], ['Democrats', 'occupation (plural)', 'bas'], ['lawyer', 'occupation (singular)', 'bas'], ['day', 'amount of time', 'bas'], ['Space', 'place', 'bas'], ['coal', 'noun', 'bas'], ['reporters', 'plural noun', 'bas'], ['immigration', 'abstract noun (ending in -tion)', 'bas'], ['meeting', 'adjective', 'addbefore'], ['votes', 'plural noun', 'bas'], ['complete', 'adverb', 'addbefore'], ['advised', 'adverb', 'addbefore'], ['voted', 'adverb', 'addbefore'], ['said', 'adverb', 'addbefore'], ['adverb', 'tweeted', 'addbefore'], ['trial', 'adjective', 'addbefore'], ['hearings', 'adjective', 'addbefore'], ['dangerous', 'adjective', 'bas'], ['extreme', 'adjective', 'bas'],['spokeswoman', 'occupation (singular)', 'bas'], ['spokesman', 'occupation (singular)','bas'],['lied', 'verb (past tense)', 'bas'], ['Americans', 'animal (plural)','bas']]
+let commonFills = [['healthcare workers', 'occupation (plural)', 'bas'], ['book', 'noun', 'bas'], ['collusion', 'noun', 'bas'], ['wished', 'past tense verb', 'bas'], ['people', 'living things', 'bas'], ['fake', 'adjective', 'bas'], ['witch', 'occupation (singular)', 'bas'], ['adviser', 'occupation (singular)', 'bas'], ['foreign aid', 'plural noun', 'bas'], ['white house', 'place', 'bas'], ['Washington D.C.', 'place', 'bas'], ['senate', 'place', 'bas'], ['Nancy Pelosi', 'celebrity', 'bas'], ['Mitch McConnell', 'celebrity', 'bas'], ['China', 'place', 'bas'], ['election', 'award ceremony name', 'bas'],['President', 'adjective', 'addbefore'],['\'s', 'adjective', 'addafter'], ['Russia', 'place', 'bas'], ['Putin', 'celebrity', 'bas'], ['collusion', '-ing verb', 'bas'], ['testify', 'verb', 'bas'], ['Republicans', 'occupation (plural)', 'bas'], ['Democrats', 'occupation (plural)', 'bas'], ['lawyer', 'occupation (singular)', 'bas'], ['Space', 'place', 'bas'], ['coal', 'noun', 'bas'], ['reporters', 'plural noun', 'bas'], ['immigration', 'abstract noun (ending in -tion)', 'bas'], ['meeting', 'adjective', 'addbefore'], ['votes', 'plural noun', 'bas'], ['complete', 'adverb', 'addbefore'], ['advised', 'adverb', 'addbefore'], ['voted', 'adverb', 'addbefore'], ['said', 'adverb', 'addbefore'], ['adverb', 'tweeted', 'addbefore'], ['trial', 'adjective', 'addbefore'], ['hearings', 'adjective', 'addbefore'], ['dangerous', 'adjective', 'bas'], ['extreme', 'adjective', 'bas'],['spokeswoman', 'occupation (singular)', 'bas'], ['states', 'noun (plural)', 'bas'], ['distancing', 'verb (ending with -ing)', 'bas'], ['spokesman', 'occupation (singular)','bas'],['lied', 'verb (past tense)', 'bas'], ['ignored', 'verb (ending in -ed)', 'bas'], ['veto', 'verb (present tense e.g. "sing")', 'bas'
+], ['signed', 'verb (ending in -ed)', 'bas'],  ['agree', 'verb (present e.g. "sing")', 'bas'], ['deadly', 'adjective', 'bas'], ['Americans', 'animal (plural)','bas']]
 
 //part 1: discover words to be replaced
 const discoverReplacements = (article) => {
@@ -41,7 +53,7 @@ for (let i = 0; i < spacedArticle.length; i++) {
   };
 };
 console.log(listOfReplaced);
-  if (listOfReplaced.length > 1) {addElement(listOfReplaced)} else{ console.log('skipped'); nextLib();}
+  if (listOfReplaced.length > 2) {addElement(listOfReplaced)} else{ console.log('skipped'); nextLib();}
 }
 
 // part 2: create form boxes for user
@@ -120,7 +132,9 @@ const trumpLib = () => {
 }
 
 const nextLib = () => {
+  totalLibs++
   count++;
+  if (totalLibs == 20) return location.reload();
   if (count === 10) return endLibs();
   document.getElementById("howitworks").innerHTML = `How does it work?
       <br>We grabbed another article that <BR> awaits your final edits.<br>Just replace the prompts and hit submit!`;
@@ -131,7 +145,8 @@ const nextLib = () => {
 };
 
 const endLibs = () => {
-  location.reload()
+  count = 0;
+  newLibs()
 }
 
 //new submit button event handlers
@@ -147,3 +162,4 @@ const handler1 = () => {
 
 submit.addEventListener('click', handler1);
 
+newLibs()
