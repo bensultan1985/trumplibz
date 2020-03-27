@@ -44,7 +44,7 @@ let count = 0;
 
 app.get('/nytimes', async (req, res) => {
 let response = await fetch(`https://api.nytimes.com/svc/search/v2/articlesearch.json?q=Trump&page=${count}&api-key=9hF6uiZFm8pPLDGLCGZoP3MhhVsHiMsL`).then(res => res.json());
-await res.send(response);
+res.send(response);
 count++
 console.log(count)
 console.log(response.response.docs[0].abstract)
