@@ -8,6 +8,7 @@
   border-width: 0px;
   border-color: lightblue;
   padding: 10px;
+  visibility: hidden;
 }
 #submit:hover {
     outline: 0px solid lightblue;
