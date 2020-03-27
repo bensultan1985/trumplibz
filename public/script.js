@@ -11,7 +11,7 @@ let totalLibs = 0;
 // discoverReplacements(object.response.docs[count].lead_paragraph);
 const newLibs = () => { (async () => {
   object = {};
-  let response = await fetch('http://localhost:5000/nytimes');
+  let response = await fetch('/nytimes');
   object = await response.json(); // read response body and parse as JSON
   console.log(object);
   headline = object.response.docs[count].headline.main;
@@ -69,6 +69,7 @@ function addElement (arr) {
     document.getElementById("formarea").append(box);
     elementCount++;
   }
+  submit.style.visibility = 'visible';
 }
 
 //discoverReplacements(article)
@@ -155,6 +156,7 @@ const handler1 = () => {
     pushElements();
     submit.innerHTML = 'make a new one!';
   } else {
+    submit.style.visibility = 'hidden';
     submit.innerHTML = 'submit';
     nextLib()
   };
