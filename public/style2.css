@@ -104,3 +104,11 @@
   #page {
     font-size: 0px;
   }
+
+  #article {
+    margin: auto;
+    box-sizing: border-box;
+    width: 450px;
+    float: center;
+    text-align: center;
+    }
