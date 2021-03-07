@@ -1,9 +1,25 @@
-let object = {};
+/*/////////////////////////
+NewsLibz v 2.0.0.0
+3/6/21 BEN
+1. articleDetails object contains all necessary variables.
+2. articleDetails.replWordsList lists all words to be replaced and stores the replacement words.
+/////////////////////////*/
+
+let timesData = {};
 let count = 0;
 let submit = document.getElementById("submit");
 let headline = '';
 let pageCount = 0;
 let firstLib = true;
+let listOfReplaced = [];
+let elementCount = 0;
+let newArticle = '';
+let articleDetails = {};
+let punctuationExceptions = /(((?:a\.d|a\.m|abbr|adj|adv|al|assn|ave|c|c\.v|ca|dept|dr|e\.g|est|etc|fig|gen|hon|hrs|i\.e|inc|jr|mr|mrs|ms|mt|no|obj|oz|p\.a|p\.m|p\.s|pl|poss|prep|prof|pron|pseud|r\.i\.p|rev|sing|sq|sr|st|stat|syn|trans|v|vb|vs))\.|[,;:!?])$/;
+//special conditions
+//['election', 'award ceremony name', 'bas'] add in later
+//detect two articles (a, an, the) in a row
+
 //API NYTimes Call
 // let url = 'http://localhost:5000/nytimes';
 // let response = fetch(url).then(response => res.json()).then(data => console.log(data));
@@ -13,7 +29,7 @@ let firstLib = true;
 const newLibs = () => {
   if (pageCount == 20) pageCount = 0; 
   (async () => {
-    object = {};
+    timesData = {};
     const rawResponse = await fetch('/nytimes', {
       method: 'POST',
       headers: {
@@ -21,128 +37,119 @@ const newLibs = () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({'pagecount': pageCount})
-    })
+    });
     pageCount++;
-    object = await rawResponse.json(); // read response body and parse as JSON
-  console.log(object);
-  headline = object.response.docs[count].headline.main;
-  discoverReplacements(object.response.docs[count].lead_paragraph);
-    console.log(pageCount)
+    timesData = await rawResponse.json(); // read response body and parse as JSON
+  headline = timesData.response.docs[count].headline.main;
+  discoverReplacements(timesData.response.docs[count].lead_paragraph, articleDetails.headline = timesData.response.docs[count].headline.main);
   })();
-}
-
-
-//global variables
-let listOfReplaced = [];
-let elementCount = 0;
-let newArticle = '';
-//special conditions
-//['election', 'award ceremony name', 'bas'] add in later
-let addAdj = ['\'s', 'adjective', 'addafter']
-let replaceIng = ['ing', '-ing verb', 2]
-let president = ['President', 'adjective', 'addbefore']
-let addAdjectives = [['meeting', 'adjective (e.g. pretty)', 'addbefore'], ['votes', 'plural noun', 'bas'], ['complete', 'adverb (e.g. softly)', 'addbefore'], ['advised', 'adverb (e.g. softly)', 'addbefore'], ['voted', 'adverb (e.g. softly)', 'addbefore'], ['said', 'adverb (e.g. softly)', 'addbefore'], ['adverb (e.g. softly)', 'tweeted', 'addbefore'], ['trial', 'adjective (e.g. pretty)', 'addbefore'], ['hearings', 'adjective (e.g. pretty)', 'addbefore'],['President', 'adjective (e.g. pretty)', 'addbefore'], ['dangerous', 'adjective (e.g. pretty)', 'bas']]
-//regular conditions template ['', '', 'bas']
-let commonFills = [['healthcare workers', 'occupation (plural)', 'bas'], ['book', 'noun', 'bas'], ['collusion', 'noun', 'bas'], ['wished', 'past tense verb', 'bas'], ['people', 'living things', 'bas'], ['fake', 'adjective (e.g. pretty)', 'bas'], ['witch', 'occupation (singular)', 'bas'], ['adviser', 'occupation (singular)', 'bas'], ['foreign aid', 'plural noun', 'bas'], ['white house', 'place', 'bas'], ['Washington D.C.', 'place', 'bas'], ['senate', 'place', 'bas'], ['Nancy Pelosi', 'celebrity', 'bas'], ['Mitch McConnell', 'celebrity', 'bas'], ['China', 'place', 'bas'],['President', 'adjective (e.g. pretty)', 'addbefore'],['\'s', 'adjective (e.g. pretty)', 'addafter'], ['Russia', 'place', 'bas'], ['Putin', 'celebrity', 'bas'], ['collusion', '-ing verb', 'bas'], ['testify', 'verb', 'bas'], ['Republicans', 'occupation (plural)', 'bas'], ['Democrats', 'occupation (plural)', 'bas'], ['lawyer', 'occupation (singular)', 'bas'], ['Space', 'place', 'bas'], ['coal', 'noun', 'bas'], ['reporters', 'plural noun', 'bas'], ['immigration', 'abstract noun (ending in -tion)', 'bas'], ['meeting', 'adjective (e.g. pretty)', 'addbefore'], ['votes', 'plural noun', 'bas'], ['complete', 'adverb (e.g. softly)', 'addbefore'], ['advised', 'adverb (e.g. softly)', 'addbefore'], ['voted', 'adverb (e.g. softly)', 'addbefore'], ['said', 'adverb (e.g. softly)', 'addbefore'], ['adverb (e.g. softly)', 'tweeted', 'addbefore'], ['trial', 'adjective (e.g. pretty)', 'addbefore'], ['hearings', 'adjective (e.g. pretty)', 'addbefore'], ['dangerous', 'adjective (e.g. pretty)', 'bas'], ['extreme', 'adjective (e.g. pretty)', 'bas'],['spokeswoman', 'occupation (singular)', 'bas'], ['states', 'noun (plural)', 'bas'], ['distancing', 'verb (ending with -ing)', 'bas'], ['spokesman', 'occupation (singular)','bas'],['lied', 'verb (past tense)', 'bas'], ['ignored', 'verb (ending in -ed)', 'bas'], ['veto', 'verb (present tense e.g. "sing")', 'bas'
-], ['signed', 'verb (ending in -ed)', 'bas'], ['troops', 'noun (plural)', 'bas'], ['agree', 'verb (present e.g. "sing")', 'bas'], ['deadly', 'adjective (e.g. pretty)', 'bas'], ['Americans', 'animal (plural)','bas']]
+};
 
 //part 1: discover words to be replaced
-const discoverReplacements = (article) => {
-listOfReplaced = [];
-spacedArticle = article.split(' ')
-
-for (let i = 0; i < spacedArticle.length; i++) {
-  for (let j = 0; j < commonFills.length; j++) {
-    if (spacedArticle[i] === commonFills[j][0]) {
-      listOfReplaced.push(commonFills[j][1])
+const discoverReplacements = (article, headline) => {
+  listOfReplaced = [];
+  spacedArticle = article.split(' ');
+  articleDetails.ogArticle = article;
+  articleDetails.spacedArticle = spacedArticle;
+  articleDetails.replWordList = {};
+  articleDetails.count = 0;
+  articleDetails.headline = headline;
+  spacedArticle.forEach(word => {
+    let lWord = word.toLowerCase();
+    let match = lWord.match(punctuationExceptions);
+    if (match) {
+      lWord = lWord.slice(0, -1);
     };
-    if (spacedArticle[i].match(/[']s$/i)) {
-      listOfReplaced.push(addAdj[1])
-      break;
-
+    if (replWordList[lWord] && !articleDetails.replWordList[lWord]) {
+      articleDetails.replWordList[lWord] = replWordList[lWord];
+      articleDetails.count++
     };
+  });
+  articleDetails.headline.split(' ').forEach(word => {
+    let lWord = word.toLowerCase();
+    let match = lWord.match(punctuationExceptions);
+    if (match) {
+      lWord = lWord.slice(0, -1);
+    };
+    if (replWordList[lWord] && !articleDetails.replWordList[lWord]) {
+      articleDetails.replWordList[lWord] = replWordList[lWord];
+      articleDetails.count++;
+    };
+  });
+  if (articleDetails.count > 2) {
+    addElement(articleDetails);
+  } else {
+    nextLib();
   };
 };
-console.log(listOfReplaced);
-  if (listOfReplaced.length > 2) {addElement(listOfReplaced)} else{ console.log('skipped'); nextLib();}
-}
 
 // part 2: create form boxes for user
-function addElement (arr) {
-  document.getElementById("formarea").innerHTML = ''
+function addElement (articleDetails) {
+  document.getElementById("formarea").innerHTML = '';
   elementCount = 0;
-  for (let i = 0; i < arr.length; i++) { 
-    //let input = document.createElement("input");
+  for (key in articleDetails.replWordList) { 
     let box = document.createElement('input');
-    box.id = "ID" + i;
+    box.id = "ID" + elementCount;
     box.type = "text";
-    box.placeholder = arr[i];
     box.className = "formbox";
+    box.placeholder = articleDetails.replWordList[key].pos;
+    box.setAttribute("ogWord", key)
     document.getElementById("formarea").append(box);
     elementCount++;
-  }
+  };
   submit.style.visibility = 'visible';
-}
-
+};
 //discoverReplacements(article)
-
-
-let newWords = [];
 
 //part 3: new words are received
 const pushElements = () => {
-  newWords = [];
-  for (let i = 0; i < elementCount; i++) {
-    newWords.push(document.getElementById("ID" + i).value);
+  let formElements = document.getElementsByClassName('formbox');
+  for (let i = 0; i < formElements.length; i++) {
+    articleDetails.replWordList[formElements[i].getAttribute("ogWord")].replacement = formElements[i].value;
   };
-  console.log(`${newWords}newwords`)
-  replaceWords(newWords);
+  var art = replaceWords(articleDetails.spacedArticle);
+  var head = replaceWords(articleDetails.headline.split(' ')).join(' ');
+  return newzLib(art, head);
 };
 
 //part 4: article words are replaced with user words
-const replaceWords = (newWords) => {
-  let sliceWord = [];
-  let temp;
-  let k = 0;
-  for (let i = 0; i < spacedArticle.length; i++) {
-    if (spacedArticle[i].match(/[']s$/i)) {
-      sliceWord = newWords[k]
-      spacedArticle.splice(i+1, 0, sliceWord);
-      k++;
-      }
-    for (let l = 0; l < addAdjectives.length; l++) {
-      if (spacedArticle[i] === addAdjectives[l][0]) {
-      sliceWord = newWords[k]
-      spacedArticle.splice(i, 0, sliceWord);
-      i++;
-      k++;
+const replaceWords = (spacedWords) => {
+  for (let i = 0; i < spacedWords.length; i++) {
+    lWord = spacedWords[i].toLowerCase();
+    let match = lWord.match(/((?<!\b(?:a\.d|a\.m|abbr|adj|adv|al|assn|ave|c|c\.v|ca|dept|dr|e\.g|est|etc|fig|gen|hon|hrs|i\.e|inc|jr|mr|mrs|ms|mt|no|obj|oz|p\.a|p\.m|p\.s|pl|poss|prep|prof|pron|pseud|r\.i\.p|rev|sing|sq|sr|st|stat|syn|trans|v|vb|vs))\.|[.,;:!?])$/)
+    if (match) {
+      lWord = lWord.slice(0, -1);
+    };
+    if (articleDetails.replWordList[lWord]) {
+      if (articleDetails.replWordList[lWord].rule == 'bas') {
+      spacedWords[i] = articleDetails.replWordList[lWord].replacement;
       continue;
-    } else {
-    for (let j = 0; j < commonFills.length; j++) {
-      if (spacedArticle[i] === commonFills[j][0]) {
-        if (commonFills[j][2] === 'bas') {
-          spacedArticle[i] = newWords[k];
-          k++;
-          };
-        };
+      };
+      if (articleDetails.replWordList[lWord].rule == 'addbefore') {
+        spacedWords.splice(i, 0, articleDetails.replWordList[lWord].replacement);
+        i++;
+        continue;
       };
     };
   };
-  }
-      return trumpLib(spacedArticle);
-}
+  return spacedWords;
+};
 
+// function hasApostrophe(str) {
+//   if (str.match(/[']s$/i)) {
+//   sliceWord = str
+//   spacedArticleD.splice(i+1, 0, sliceWord);
+//   k++;
+//   };
+// }
 
-const trumpLib = () => {
-  headline = object.response.docs[count].headline.main;
+const newzLib = (array, headline) => {
   document.getElementById("formarea").innerHTML = '';
-  newArticle = spacedArticle.join(' ');
-  console.log(newArticle);
+  newArticle = array.join(' ');
   document.getElementById("article").innerHTML = `<h2>${headline}</h2> <br><div id="newart">${newArticle}</div>`;
   document.getElementById("howitworks").innerHTML = '';
   document.getElementById("subheadings").style.visibility = "hidden";
-
-}
+};
 
 const nextLib = () => {
   count++;
@@ -154,13 +161,13 @@ const nextLib = () => {
   document.getElementById("formarea").innerHTML = 'loading...';
   document.getElementById("article").innerHTML = '';
   document.getElementById("subheadings").style.visibility = "visible";
-  discoverReplacements(object.response.docs[count].lead_paragraph);
+  discoverReplacements(timesData.response.docs[count].lead_paragraph, articleDetails.headline = timesData.response.docs[count].headline.main);
 };
 
 const endLibs = () => {
   count = 0;
-  newLibs()
-}
+  newLibs();
+};
 
 //new submit button event handlers
 const handler1 = () => {
@@ -171,10 +178,9 @@ const handler1 = () => {
   } else {
     submit.style.visibility = 'hidden';
     submit.innerHTML = 'submit';
-    nextLib()
+    nextLib();
   };
 };
 
 submit.addEventListener('click', handler1);
-
-newLibs()
+newLibs();
