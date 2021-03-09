@@ -99,6 +99,7 @@
   
   #newart {
     font-size: 18px;
+    margin-bottom: 18px;
   }
   
   #page {
@@ -112,3 +113,7 @@
     float: center;
     text-align: center;
     }
+
+.repl-word {
+  color: red;
+}

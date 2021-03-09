@@ -116,17 +116,17 @@ const pushElements = () => {
 const replaceWords = (spacedWords) => {
   for (let i = 0; i < spacedWords.length; i++) {
     lWord = spacedWords[i].toLowerCase();
-    let match = lWord.match(/((?<!\b(?:a\.d|a\.m|abbr|adj|adv|al|assn|ave|c|c\.v|ca|dept|dr|e\.g|est|etc|fig|gen|hon|hrs|i\.e|inc|jr|mr|mrs|ms|mt|no|obj|oz|p\.a|p\.m|p\.s|pl|poss|prep|prof|pron|pseud|r\.i\.p|rev|sing|sq|sr|st|stat|syn|trans|v|vb|vs))\.|[.,;:!?])$/)
+    let match = lWord.match(/<!\b(?:a\.d|a\.m|abbr|adj|adv|al|assn|ave|c|c\.v|ca|dept|dr|e\.g|est|etc|fig|gen|hon|hrs|i\.e|inc|jr|mr|mrs|ms|mt|no|obj|oz|p\.a|p\.m|p\.s|pl|poss|prep|prof|pron|pseud|r\.i\.p|rev|sing|sq|sr|st|stat|syn|trans|v|vb|vs)\.|[.,;:!?]$/)
     if (match) {
       lWord = lWord.slice(0, -1);
     };
     if (articleDetails.replWordList[lWord]) {
       if (articleDetails.replWordList[lWord].rule == 'bas') {
-      spacedWords[i] = articleDetails.replWordList[lWord].replacement;
+      spacedWords[i] = `<span class="repl-word"><b>${articleDetails.replWordList[lWord].replacement}</b></span>`;
       continue;
       };
       if (articleDetails.replWordList[lWord].rule == 'addbefore') {
-        spacedWords.splice(i, 0, articleDetails.replWordList[lWord].replacement);
+        spacedWords.splice(i, 0, `<span class="repl-word"><b>${articleDetails.replWordList[lWord].replacement}</b></span>`);
         i++;
         continue;
       };
